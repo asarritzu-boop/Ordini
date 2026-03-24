@@ -72,16 +72,16 @@
         #appPage { display: none; }
         /* MODIFICA 1: header sticky, compatto, niente border-radius */
         .header {
-    position: -webkit-sticky; /* Fondamentale per Safari/iOS */
+    posi.header {
     position: sticky;
     top: 0;
-    z-index: 1000; /* Sempre sopra a tutto */
+    z-index: 1000;
+    height: 60px; /* Imposta questa altezza precisa */
     background: var(--surface);
-    height: 60px; /* Altezza fissa per calcolare lo scorrimento */
     display: flex;
     align-items: center;
     padding: 0 15px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
         .header-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
@@ -145,22 +145,22 @@ html, body {
 }
 
 .main-content {
-    overflow: visible !important; /* Fondamentale */
+    flex: 3;
     background: var(--surface);
-    border-radius: 0; /* Rimuovi angoli arrotondati se vuoi che l'header tocchi i bordi */
+    border-radius: 12px;
+    overflow: visible !important; /* Questo permette allo sticky di funzionare correttamente */
 }
+
         .sticky-workspace-header {
-    position: -webkit-sticky;
+    position: -webkit-sticky; /* Per Safari/iOS */
     position: sticky;
-    top: 60px; /* DEVE essere uguale all'altezza dell'header sopra */
+    top: 60px; /* <--- DEVE ESSERE UGUALE ALL'ALTEZZA DELL'HEADER */
     z-index: 999;
     background: var(--surface);
     padding: 15px 20px;
     border-bottom: 2px solid var(--border);
-    margin: 0; /* Rimuovi margini che potrebbero staccarlo */
+    margin-top: 0; 
 }
-
-
         .workspace-body { padding: 15px 20px 10px 20px; }
 
         button { border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; color: white; background: var(--primary); }
