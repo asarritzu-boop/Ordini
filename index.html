@@ -118,54 +118,53 @@
 }
 
 
-/* Blocca lo scroll della pagina intera */
+/* 1. Permetti alla pagina di scorrere normalmente */
 html, body {
-    height: 100%;
+    height: auto; 
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto; /* Forza lo scorrimento verticale */
     margin: 0;
     padding: 0;
-    /* Rimuoviamo overflow: hidden dal body per permettere lo scroll naturale */
-    overflow: auto; 
+    -webkit-overflow-scrolling: touch; /* Rende lo scroll fluido su iPhone */
 }
 
+/* 2. Rendi il contenitore flessibile ma non bloccato */
 #appPage {
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* Usa min-height invece di height fisso */
+    min-height: 100vh;
 }
 
-
-/* Permette all'app di occupare tutto lo schermo e gestire lo scroll internamente */
-#appPage {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-}
-
-/* Rendi il contenitore dei dati scorrevole */
+/* 3. Il container non deve avere overflow: auto se vogliamo che scorra tutta la pagina */
 .container {
-    flex: 1;
-    flex-direction: column;
-    overflow-y: auto; 
     display: flex;
+    flex-direction: column; /* Fondamentale per il layout mobile */
     gap: 20px;
     padding: 10px;
+    flex: 1;
 }
 
-
-        /* MODIFICA 4: blocco superiore dell'azienda ancorato sotto l'header durante lo scroll */
-    .sticky-workspace-header {
-    position: -webkit-sticky; /* Supporto per Safari */
-    position: sticky;
-    top: 0; 
-    z-index: 90;
+/* 4. Assicurati che il contenuto principale non tagli nulla */
+.main-content {
+    flex: 1;
     background: var(--surface);
-    margin: 0 -20px; /* Estende lo sfondo ai bordi se necessario */
-    padding: 15px 20px;
-    border-bottom: 2px solid var(--border);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    overflow: visible !important; /* IMPORTANTE: permette allo sticky di funzionare */
 }
 
 
+        .sticky-workspace-header {
+    position: -webkit-sticky; /* Supporto necessario per Safari iOS */
+    position: sticky;
+    top: 0; /* Si attacca al bordo superiore del browser durante lo scroll */
+    z-index: 99;
+    background: var(--surface);
+    padding: 12px 20px;
+    border-bottom: 2px solid var(--border);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* Ombra per staccarlo dalla tabella */
+}
 
         .workspace-body { padding: 15px 20px 10px 20px; }
 
