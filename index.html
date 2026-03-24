@@ -72,16 +72,18 @@
         #appPage { display: none; }
         /* MODIFICA 1: header sticky, compatto, niente border-radius */
         .header {
+    position: -webkit-sticky; /* Supporto Safari iOS */
     position: sticky;
     top: 0;
-    z-index: 1000;
-    height: 60px; /* Imposta questa altezza precisa */
+    z-index: 1100; /* Più alto di tutto */
+    height: 60px;
     background: var(--surface);
     display: flex;
     align-items: center;
     padding: 0 15px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
+            will-change: transform;
+        }
 
 
         .header-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
@@ -127,40 +129,47 @@
 html, body {
     margin: 0;
     padding: 0;
-    /* Rimuoviamo altezze fisse che rompono lo sticky su mobile */
     height: auto;
-    min-height: 100%;
-}
-
-#appPage {
-    display: flex;
-    flex-direction: column;
+    overflow-x: hidden; /* Impedisce lo sballottamento laterale */
+    /* Rimuovi overflow: auto o hidden se presenti altrove */
 }
 
 .container {
     display: flex;
-    flex-direction: column; /* Per il mobile è meglio incolonnare */
-    padding: 0; /* Rimuovi padding che distanzia lo sticky dai bordi */
-    overflow: visible !important; /* SE C'È HIDDEN O AUTO, LO STICKY NON FUNZIONA */
+    flex-direction: row; /* Default PC */
+    padding: 0;
+    overflow: visible !important; /* Vitale per lo sticky */
 }
 
 .main-content {
     flex: 3;
     background: var(--surface);
-    border-radius: 12px;
-    overflow: visible !important; /* Questo permette allo sticky di funzionare correttamente */
+    /* Rimosso border-radius che a volte crea clipping su mobile */
+    overflow: visible !important; 
 }
 
-        .sticky-workspace-header {
-    position: -webkit-sticky; /* Per Safari/iOS */
+/* Modifica specifica per Mobile */
+@media (max-width: 850px) {
+    .container {
+        flex-direction: column;
+    }
+    .sidebar {
+        min-width: 100%;
+        border-radius: 0;
+    }
+}
+
+   .sticky-workspace-header {
+    position: -webkit-sticky;
     position: sticky;
-    top: 60px; /* <--- DEVE ESSERE UGUALE ALL'ALTEZZA DELL'HEADER */
-    z-index: 999;
+    top: 60px; /* Esattamente l'altezza dell'header */
+    z-index: 1000; /* Sotto l'header ma sopra la tabella */
     background: var(--surface);
     padding: 15px 20px;
     border-bottom: 2px solid var(--border);
-    margin-top: 0; 
-}
+    margin-top: 0;
+       will-change: transform;
+   }
         .workspace-body { padding: 15px 20px 10px 20px; }
 
         button { border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; color: white; background: var(--primary); }
