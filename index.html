@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Ordini</title>
+    <meta name="theme-color" content="#FFDB58">
+<meta name="apple-mobile-web-app-status-bar-style" content="#FFDB58">
+
+<link rel="icon" type="image/png" href="icona-192.png">
+<link rel="apple-touch-icon" href="icona-192.png">
+
+<link rel="manifest" href="manifest.json">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://asarritzu-boop.github.io/Ordini/">
+<meta property="og:title" content="Ordini App">
+<meta property="og:description" content="Gestione ordini rapida e veloce">
+<meta property="og:image" content="https://asarritzu-boop.github.io/Ordini/icona-512.png">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ordini App">
+<meta name="twitter:description" content="Gestione ordini rapida e veloce">
+<meta name="twitter:image" content="https://asarritzu-boop.github.io/Ordini/icona-512.png">
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('SW registrato con successo'))
+        .catch(err => console.log('Errore SW:', err));
+    });
+  }
+</script>
+
+    <style>
+        :root {
+            --primary: #4A90E2;
+            --secondary: #2ECC71;
+            --bg: #F5F7FA;
+            --surface: #FFFFFF;
+            --text: #333333;
+            --border: #E1E8ED;
+        }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; }
+        h1, h2, h3 { color: var(--primary); margin-top: 0; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px; background: var(--surface); padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); gap: 10px; }
+        .header-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+        
+        .container { display: flex; gap: 20px; }
+        .sidebar { flex: 1; min-width: 280px; background: var(--surface); padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); height: fit-content; }
+        .main-content { flex: 3; background: var(--surface); padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        
+        button { border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; color: white; background: var(--primary); }
+        .danger { background: #E74C3C; }
+        .success { background: var(--secondary); }
+        .warning { background: #F39C12; }
+        .outline { background: transparent; border: 1px solid var(--border); color: #666; }
+        .toggle-btn { background: #eee; color: #333; width: 100%; text-align: left; margin-bottom: 10px; display: flex; justify-content: space-between; }
+
+        input, select { padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; width: 100%; box-sizing: border-box; font-size: 16px; }
+        
+        ul.company-list { list-style: none; padding: 0; margin: 15px 0; }
+        ul.company-list li { padding: 12px; margin-bottom: 8px; border-radius: 10px; background: #f8fafc; border: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        ul.company-list li.active { background: #e3f2fd; border: 2px solid var(--primary); font-weight: bold; }
+        .comp-actions { display: flex; gap: 5px; }
+        .comp-btn { padding: 5px 8px; border-radius: 5px; font-size: 12px; }
+
+        .price-section { margin-bottom: 20px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        .price-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; background: #fdfdfd; padding: 15px; border-top: 1px solid var(--border); }
+        .price-item { position: relative; background: white; padding: 10px; border: 1px solid #eee; border-radius: 8px; }
+        .price-item .del-cat { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; }
+
+        .table-responsive { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); }
+        th { background: #f8fafc; font-size: 12px; color: #666; }
+        tfoot td { background: #f1f5f9; font-size: 1.1rem; border-top: 2px solid var(--primary); }
+
+        @media (max-width: 850px) { .container { flex-direction: column; } .header { flex-direction: column; text-align: center; } .header-buttons button { flex: 1; } }
+        @media print { .no-print, .header, .sidebar, .action-column, .del-cat, .price-section { display: none !important; } body { background: white; } .main-content { box-shadow: none; width: 100%; } }
+    </style>
+</head>
+<body>
+
+    <div class="header no-print">
+        <h1>Gestione Ordini</h1>
+        <div class="header-buttons">
+            <button onclick="window.print()" class="success">Stampa PDF</button>
+            <button onclick="exportData()" class="outline">Backup</button>
+            <button onclick="document.getElementById('importFile').click()" class="outline">Ripristina</button>
+            <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar no-print">
+            <h3>Aziende</h3>
+            <input type="text" id="newCompanyName" placeholder="Nome Azienda">
+            <button onclick="addCompany()" style="width: 100%;">+ Nuova Azienda</button>
+            <ul id="companyList" class="company-list"></ul>
+        </div>
+
+        <div class="main-content">
+            <h2 id="currentCompanyName" style="text-align: center;">Seleziona un'azienda</h2>
+            
+            <div id="companyWorkspace" style="display:none">
+                <div class="no-print">
+                    <div class="price-section">
+                        <button class="toggle-btn" onclick="togglePrices()">
+                            <span>⚙️ Configura Listino Prezzi</span>
+                            <span id="toggleIcon">▼</span>
+                        </button>
+                        <div id="priceGridContainer" style="display: none;">
+                            <div style="padding: 0 15px;"><button onclick="addCategory()" class="outline" style="width:100%; margin-bottom:10px; font-size:12px;">+ Aggiungi Nuova Voce</button></div>
+                            <div id="priceGrid" class="price-grid"></div>
+                        </div>
+                    </div>
+
+                    <h3>Nuovo Ordine / Sconto</h3>
+                    <input type="date" id="oDate">
+                    <input type="text" id="oName" placeholder="Nome Cliente o Nota (es. Acconto)">
+                    <div style="display:flex; gap:10px;">
+                        <select id="oType"></select>
+                        <input type="number" step="0.01" id="oKg" placeholder="Importo o Kg">
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top:5px;">
+                        <button id="saveBtn" onclick="saveOrder()" style="flex:2">Salva</button>
+                        <button id="cancelBtn" onclick="cancelEdit()" class="warning" style="flex:1; display:none">Annulla</button>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:30px;">
+                    <h3>Elenco Movimenti</h3>
+                    <button onclick="clearAllOrders()" class="danger no-print" style="padding:5px 10px; font-size:12px;">Svuota Elenco</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Nota/Nome</th>
+                                <th>Tipo</th>
+                                <th>Quantità</th>
+                                <th>Totale</th>
+                                <th class="action-column">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody"></tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" style="text-align:right"><strong>TOTALE DA SALDARE:</strong></td>
+                                <td id="totalSumAmount" colspan="2"><strong>€ 0.00</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let db = { companies: [] };
+        let activeId = null;
+        let editId = null;
+
+        function init() {
+            const saved = localStorage.getItem('gestioneTorteDataV5');
+            if (saved) db = JSON.parse(saved);
+            document.getElementById('oDate').valueAsDate = new Date();
+            renderList();
+        }
+
+        function save() { localStorage.setItem('gestioneTorteDataV5', JSON.stringify(db)); }
+
+        function addCompany() {
+            const name = document.getElementById('newCompanyName').value.trim();
+            if (!name) return alert("Inserisci un nome");
+            const newComp = {
+                id: "C" + Date.now(),
+                name: name,
+                prices: [
+                    { label: "Torta basic", value: 15.00 },
+                    { label: "Torta pers.", value: 18.00 },
+                    { label: "Torta intoll.", value: 20.00 },
+                    { label: "Crostate", value: 20.00 },
+                    { label: "Pasticcini", value: 20.00 },
+                    { label: "Dolcini", value: 18.00 },
+                    { label: "Cialda", value: 4.00 },
+                    { label: "Sconta pagamento", value: -1.00 }
+                ],
+                orders: []
+            };
+            db.companies.push(newComp);
+            save();
+            document.getElementById('newCompanyName').value = '';
+            renderList();
+            selectCompany(newComp.id);
+        }
+
+        function renameComp(id, e) {
+            e.stopPropagation();
+            const comp = db.companies.find(c => c.id === id);
+            const newName = prompt("Inserisci il nuovo nome per l'azienda:", comp.name);
+            if (newName && newName.trim() !== "") {
+                comp.name = newName.trim();
+                save();
+                renderList();
+                if (activeId === id) {
+                    document.getElementById('currentCompanyName').innerText = comp.name;
+                }
+            }
+        }
+
+        function togglePrices() {
+            const container = document.getElementById('priceGridContainer');
+            const icon = document.getElementById('toggleIcon');
+            container.style.display = container.style.display === 'none' ? 'block' : 'none';
+            icon.textContent = container.style.display === 'none' ? '▼' : '▲';
+        }
+
+        function addCategory() {
+            const label = prompt("Nome nuova categoria:");
+            if (!label) return;
+            const comp = db.companies.find(c => c.id === activeId);
+            comp.prices.push({ label: label, value: 0 });
+            save();
+            renderWorkspace();
+        }
+
+        function deleteCategory(index) {
+            if(!confirm("Eliminare voce dal listino?")) return;
+            const comp = db.companies.find(c => c.id === activeId);
+            comp.prices.splice(index, 1);
+            save();
+            renderWorkspace();
+        }
+
+        function selectCompany(id) {
+            activeId = id;
+            editId = null;
+            renderList();
+            renderWorkspace();
+            document.getElementById('priceGridContainer').style.display = 'none';
+        }
+
+        function renderList() {
+            const list = document.getElementById('companyList');
+            list.innerHTML = '';
+            db.companies.forEach(c => {
+                const li = document.createElement('li');
+                li.className = c.id === activeId ? 'active' : '';
+                li.onclick = () => selectCompany(c.id);
+                li.innerHTML = `
+                    <span style="flex:1; overflow:hidden; text-overflow:ellipsis;">${c.name}</span> 
+                    <div class="comp-actions">
+                        <button class="comp-btn warning no-print" onclick="renameComp('${c.id}', event)">✎</button>
+                        <button class="comp-btn danger no-print" onclick="delComp('${c.id}', event)">✖</button>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function renderWorkspace() {
+            const comp = db.companies.find(c => c.id === activeId);
+            
+            // Gestione "Ombra": se non c'è un'azienda attiva, pulisci tutto e nascondi
+            if(!comp) {
+                document.getElementById('companyWorkspace').style.display = 'none';
+                document.getElementById('currentCompanyName').innerText = "Seleziona un'azienda";
+                return;
+            }
+
+            document.getElementById('companyWorkspace').style.display = 'block';
+            document.getElementById('currentCompanyName').innerText = comp.name;
+
+            const grid = document.getElementById('priceGrid');
+            grid.innerHTML = '';
+            const select = document.getElementById('oType');
+            select.innerHTML = '';
+
+            comp.prices.forEach((p, index) => {
+                const div = document.createElement('div');
+                div.className = 'price-item';
+                div.innerHTML = `
+                    <div class="del-cat" onclick="deleteCategory(${index})">×</div>
+                    <small>${p.label}</small>
+                    <input type="number" step="0.01" value="${p.value}" onchange="updatePriceVal(${index}, this.value)">
+                `;
+                grid.appendChild(div);
+
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.textContent = p.label + (p.value !== -1 ? ` (€ ${p.value})` : " (Sottrai importo)");
+                select.appendChild(opt);
+            });
+
+            renderOrders();
+        }
+
+        function updatePriceVal(index, val) {
+            const comp = db.companies.find(c => c.id === activeId);
+            comp.prices[index].value = parseFloat(val) || 0;
+            save();
+            renderWorkspace();
+        }
+
+        function saveOrder() {
+            const comp = db.companies.find(c => c.id === activeId);
+            const date = document.getElementById('oDate').value;
+            const name = document.getElementById('oName').value.trim();
+            const typeIdx = document.getElementById('oType').value;
+            const kg = parseFloat(document.getElementById('oKg').value);
+
+            if (!date || !name || isNaN(kg)) return alert("Dati incompleti");
+
+            const category = comp.prices[typeIdx];
+            const total = kg * category.value;
+
+            const orderData = { id: editId || "O"+Date.now(), date, name, typeLabel: category.label, kg, total, typeIdx };
+
+            if (editId) {
+                const idx = comp.orders.findIndex(o => o.id === editId);
+                comp.orders[idx] = orderData;
+            } else {
+                comp.orders.push(orderData);
+            }
+            
+            comp.orders.sort((a,b) => new Date(b.date) - new Date(a.date));
+            save();
+            cancelEdit();
+        }
+
+        function renderOrders() {
+            const comp = db.companies.find(c => c.id === activeId);
+            const body = document.getElementById('ordersTableBody');
+            body.innerHTML = '';
+            let totalSum = 0;
+
+            comp.orders.forEach(o => {
+                totalSum += o.total;
+                const row = body.insertRow();
+                if(o.id === editId) row.style.background = "#fff3cd";
+                row.innerHTML = `
+                    <td>${o.date.split('-').reverse().join('/')}</td>
+                    <td><strong>${o.name}</strong></td>
+                    <td><small>${o.typeLabel}</small></td>
+                    <td>${o.kg}</td>
+                    <td style="color: ${o.total < 0 ? 'red' : 'inherit'}"><strong>€ ${o.total.toFixed(2)}</strong></td>
+                    <td class="action-column">
+                        <button class="warning" onclick="editOrder('${o.id}')" style="padding:5px 8px;">✎</button>
+                        <button class="danger" onclick="delOrder('${o.id}')" style="padding:5px 8px;">✖</button>
+                    </td>
+                `;
+            });
+            document.getElementById('totalSumAmount').innerHTML = `<strong>€ ${totalSum.toFixed(2)}</strong>`;
+        }
+
+        function editOrder(id) {
+            const comp = db.companies.find(c => c.id === activeId);
+            const o = comp.orders.find(ord => ord.id === id);
+            editId = id;
+            document.getElementById('oDate').value = o.date;
+            document.getElementById('oName').value = o.name;
+            document.getElementById('oType').value = o.typeIdx;
+            document.getElementById('oKg').value = Math.abs(o.kg);
+            document.getElementById('saveBtn').innerText = "Aggiorna";
+            document.getElementById('cancelBtn').style.display = "inline-block";
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            renderOrders();
+        }
+
+        function cancelEdit() {
+            editId = null;
+            document.getElementById('oName').value = '';
+            document.getElementById('oKg').value = '';
+            document.getElementById('saveBtn').innerText = "Salva";
+            document.getElementById('cancelBtn').style.display = "none";
+            renderOrders();
+        }
+
+        function delOrder(id) {
+            if(!confirm("Eliminare questo movimento?")) return;
+            const comp = db.companies.find(c => c.id === activeId);
+            comp.orders = comp.orders.filter(o => o.id !== id);
+            save();
+            renderOrders();
+        }
+
+        function clearAllOrders() {
+            if(!confirm("Vuoi azzerare l'elenco di questa azienda?")) return;
+            const comp = db.companies.find(c => c.id === activeId);
+            comp.orders = [];
+            save();
+            renderOrders();
+        }
+
+        function delComp(id, e) {
+            e.stopPropagation();
+            if(!confirm("Eliminare definitivamente l'azienda e tutti i suoi ordini?")) return;
+            db.companies = db.companies.filter(c => c.id !== id);
+            if(activeId === id) activeId = null;
+            save();
+            renderList();
+            renderWorkspace(); // Questo ora pulirà correttamente l'interfaccia
+        }
+
+        function exportData() {
+            const blob = new Blob([JSON.stringify(db)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'backup_pasticceria.json'; a.click();
+        }
+
+        function importData(e) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                db = JSON.parse(event.target.result);
+                save(); renderList(); renderWorkspace();
+            };
+            reader.readAsText(e.target.files[0]);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
