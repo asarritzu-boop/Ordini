@@ -146,16 +146,16 @@ html, body {
 
 
 .container {
-    display: flex;
-    flex-direction: column;
-    padding: 60px 0 0 0 !important; /* Crea lo spazio necessario per l'header fisso */
+    display: block; /* Cambia da flex a block per mobile */
     overflow: visible !important;
 }
 
 .main-content {
     flex: 3;
     background: var(--surface);
-    overflow: visible !important; /* Vitale per lo sticky interno */
+    overflow: visible !important; /* Questo permette allo sticky di "uscire" e agganciarsi */
+    display: block; /* Forza il comportamento standard invece di flex */
+    position: relative;
 }
 
 
@@ -173,12 +173,14 @@ html, body {
 .sticky-workspace-header {
     position: -webkit-sticky;
     position: sticky;
-    top: 60px; /* Si ferma esattamente dove finisce l'header fisso */
-    z-index: 1000;
+    top: 60px; /* Si ferma esattamente sotto il menu fisso */
+    z-index: 999; /* Un gradino sotto il menu principale (che è 1100 o 2000) */
     background: var(--surface);
     padding: 15px 20px;
     border-bottom: 2px solid var(--border);
     margin-top: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
         .workspace-body { padding: 15px 20px 10px 20px; }
@@ -252,7 +254,7 @@ html, body {
 <!-- ===== LOGIN PAGE ===== -->
 <div id="loginPage" style="display:none">
     <div class="login-card">
-        <h2></h2>
+        <h2>📦Gestione Ordini📦</h2>
         <p class="login-subtitle">Accedi per sincronizzare i tuoi dati</p>
         <div class="login-tabs">
             <button class="login-tab active" id="tabLogin" onclick="switchTab('login')">Accedi</button>
@@ -323,7 +325,7 @@ html, body {
             <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
         </div>
         <div class="header-left">
-            <h1>Gestione Ordini</h1>
+            <h1></h1>
             <span class="user-badge" id="userBadge"></span>
             <span class="cloud-status synced" id="cloudStatus">☁️ Sincronizzato</span>
         </div>
