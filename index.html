@@ -739,7 +739,7 @@
             comp.orders.push(orderData);
         }
 
-        comp.orders.sort((a, b) => new Date(b.date) - new Date(a.date));
+        comp.orders.sort((a, b) => new Date(a.date) - new Date(b.date));
         save();
         cancelEdit();
     }
