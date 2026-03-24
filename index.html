@@ -72,12 +72,18 @@
         #appPage { display: none; }
         /* MODIFICA 1: header sticky, compatto, niente border-radius */
         .header {
-            display: flex; align-items: center;
-            background: var(--surface);
-            padding: 10px 15px; border-radius: 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.09); gap: 10px;
-            position: sticky; top: 0; z-index: 100;
-        }
+    position: -webkit-sticky; /* Fondamentale per Safari/iOS */
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* Sempre sopra a tutto */
+    background: var(--surface);
+    height: 60px; /* Altezza fissa per calcolare lo scorrimento */
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
         .header-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
         .header h1 { margin: 0; font-size: 1.15rem; white-space: nowrap; }
         .user-badge { font-size: 12px; color: #888; background: #f0f4fa; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
@@ -118,53 +124,42 @@
 }
 
 
-/* 1. Permetti alla pagina di scorrere normalmente */
 html, body {
-    height: auto; 
-    min-height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto; /* Forza lo scorrimento verticale */
     margin: 0;
     padding: 0;
-    -webkit-overflow-scrolling: touch; /* Rende lo scroll fluido su iPhone */
+    /* Rimuoviamo altezze fisse che rompono lo sticky su mobile */
+    height: auto;
+    min-height: 100%;
 }
 
-/* 2. Rendi il contenitore flessibile ma non bloccato */
 #appPage {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
 }
 
-/* 3. Il container non deve avere overflow: auto se vogliamo che scorra tutta la pagina */
 .container {
     display: flex;
-    flex-direction: column; /* Fondamentale per il layout mobile */
-    gap: 20px;
-    padding: 10px;
-    flex: 1;
+    flex-direction: column; /* Per il mobile è meglio incolonnare */
+    padding: 0; /* Rimuovi padding che distanzia lo sticky dai bordi */
+    overflow: visible !important; /* SE C'È HIDDEN O AUTO, LO STICKY NON FUNZIONA */
 }
 
-/* 4. Assicurati che il contenuto principale non tagli nulla */
 .main-content {
-    flex: 1;
+    overflow: visible !important; /* Fondamentale */
     background: var(--surface);
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    overflow: visible !important; /* IMPORTANTE: permette allo sticky di funzionare */
+    border-radius: 0; /* Rimuovi angoli arrotondati se vuoi che l'header tocchi i bordi */
 }
-
-
         .sticky-workspace-header {
-    position: -webkit-sticky; /* Supporto necessario per Safari iOS */
+    position: -webkit-sticky;
     position: sticky;
-    top: 0; /* Si attacca al bordo superiore del browser durante lo scroll */
-    z-index: 99;
+    top: 60px; /* DEVE essere uguale all'altezza dell'header sopra */
+    z-index: 999;
     background: var(--surface);
-    padding: 12px 20px;
+    padding: 15px 20px;
     border-bottom: 2px solid var(--border);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* Ombra per staccarlo dalla tabella */
+    margin: 0; /* Rimuovi margini che potrebbero staccarlo */
 }
+
 
         .workspace-body { padding: 15px 20px 10px 20px; }
 
