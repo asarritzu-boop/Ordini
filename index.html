@@ -72,19 +72,25 @@
         #appPage { display: none; }
         /* MODIFICA 1: header sticky, compatto, niente border-radius */
         .header {
-    position: -webkit-sticky; /* Supporto Safari iOS */
-    position: sticky;
+    position: fixed; /* Cambiato da sticky a fixed */
     top: 0;
-    z-index: 1100; /* Più alto di tutto */
-    align-self: flex-start;
+    left: 0;
+    width: 100%;
     height: 60px;
+    z-index: 2000; /* Valore alto per stare sopra a tutto */
     background: var(--surface);
     display: flex;
     align-items: center;
     padding: 0 15px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    will-change: transform;
-        }
+}
+
+/* Alziamo anche il menu a tendina per non farlo finire sotto l'header */
+.dropdown-menu {
+    z-index: 2100;
+    top: 55px;
+}
+
 
         .header-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
         .header h1 { margin: 0; font-size: 1.15rem; white-space: nowrap; }
@@ -130,23 +136,28 @@ html, body {
     margin: 0;
     padding: 0;
     height: auto;
-    overflow-x: hidden; /* Impedisce lo sballottamento laterale */
-    /* Rimuovi overflow: auto o hidden se presenti altrove */
+    min-height: 100%;
+    overflow-x: hidden;
 }
+
+#appPage {
+    display: block; /* Cambiato da flex a block per evitare conflitti con sticky */
+}
+
 
 .container {
     display: flex;
-    flex-direction: row; /* Default PC */
-    padding: 0;
-    overflow: visible !important; /* Vitale per lo sticky */
+    flex-direction: column;
+    padding: 60px 0 0 0 !important; /* Crea lo spazio necessario per l'header fisso */
+    overflow: visible !important;
 }
 
 .main-content {
     flex: 3;
     background: var(--surface);
-    /* Rimosso border-radius che a volte crea clipping su mobile */
-    overflow: visible !important; 
+    overflow: visible !important; /* Vitale per lo sticky interno */
 }
+
 
 /* Modifica specifica per Mobile */
 @media (max-width: 850px) {
@@ -159,18 +170,17 @@ html, body {
     }
 }
 
-   .sticky-workspace-header {
+.sticky-workspace-header {
     position: -webkit-sticky;
     position: sticky;
-    top: 60px; /* Esattamente l'altezza dell'header */
-    z-index: 1000; /* Sotto l'header ma sopra la tabella */
-    align-self: flex-start;
-       background: var(--surface);
+    top: 60px; /* Si ferma esattamente dove finisce l'header fisso */
+    z-index: 1000;
+    background: var(--surface);
     padding: 15px 20px;
     border-bottom: 2px solid var(--border);
     margin-top: 0;
-       will-change: transform;
-   }
+}
+
         .workspace-body { padding: 15px 20px 10px 20px; }
 
         button { border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; color: white; background: var(--primary); }
@@ -242,7 +252,7 @@ html, body {
 <!-- ===== LOGIN PAGE ===== -->
 <div id="loginPage" style="display:none">
     <div class="login-card">
-        <h2>Gestione Ordini</h2>
+        
         <p class="login-subtitle">Accedi per sincronizzare i tuoi dati</p>
         <div class="login-tabs">
             <button class="login-tab active" id="tabLogin" onclick="switchTab('login')">Accedi</button>
