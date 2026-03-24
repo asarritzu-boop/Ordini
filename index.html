@@ -137,51 +137,46 @@ html, body {
     padding: 0;
     height: auto;
     min-height: 100%;
-    overflow-x: hidden;
+    /* NON aggiungere overflow-x: hidden qui se lo sticky non va */
 }
+
 
 #appPage {
     display: block; /* Cambiato da flex a block per evitare conflitti con sticky */
 }
 
 
-.container {
-    display: block; /* Cambia da flex a block per mobile */
-    overflow: visible !important;
+/* 1. Il contenitore generale deve essere un blocco semplice */
+.container { 
+    display: block !important; /* Forza block invece di flex */
+    padding: 0 !important; 
+    overflow: visible !important; 
 }
 
+/* 2. Anche il contenuto principale deve essere block */
 .main-content {
-    flex: 3;
+    display: block !important;
     background: var(--surface);
-    overflow: visible !important; /* Questo permette allo sticky di "uscire" e agganciarsi */
-    display: block; /* Forza il comportamento standard invece di flex */
-    position: relative;
+    border-radius: 0; /* Rimuovi o riduci per mobile */
+    margin-top: 0;
+    overflow: visible !important;
+    box-shadow: none; /* Rende il calcolo dello scroll più leggero */
 }
 
-
-/* Modifica specifica per Mobile */
-@media (max-width: 850px) {
-    .container {
-        flex-direction: column;
-    }
-    .sidebar {
-        min-width: 100%;
-        border-radius: 0;
-    }
-}
-
+/* 3. La testata dell'azienda (quella che deve fermarsi) */
 .sticky-workspace-header {
     position: -webkit-sticky;
     position: sticky;
-    top: 60px; /* Si ferma esattamente sotto il menu fisso */
-    z-index: 999; /* Un gradino sotto il menu principale (che è 1100 o 2000) */
-    background: var(--surface);
+    top: 60px; /* Deve corrispondere all'altezza dell'header principale */
+    z-index: 999;
+    background: white; /* Assicurati che abbia un fondo solido */
     padding: 15px 20px;
     border-bottom: 2px solid var(--border);
-    margin-top: 0;
+    margin: 0;
     width: 100%;
     box-sizing: border-box;
 }
+
 
         .workspace-body { padding: 15px 20px 10px 20px; }
 
