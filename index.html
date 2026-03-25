@@ -163,19 +163,31 @@ html, body {
     box-shadow: none; /* Rende il calcolo dello scroll più leggero */
 }
 
-/* 3. La testata dell'azienda (quella che deve fermarsi) */
 .sticky-workspace-header {
     position: -webkit-sticky;
     position: sticky;
-    top: 60px; /* Deve corrispondere all'altezza dell'header principale */
-    z-index: 999;
-    background: white; /* Assicurati che abbia un fondo solido */
-    padding: 15px 20px;
-    border-bottom: 2px solid var(--border);
-    margin: 0;
+    top: 60px; /* Sotto l'header blu/giallo */
+    z-index: 1500; /* Sopra la tabella ma sotto il menu principale */
+    background: white !important; /* Forza il fondo bianco per non vedere la tabella sotto */
+    padding: 10px 15px;
+    border-bottom: 2px solid var(--primary);
     width: 100%;
     box-sizing: border-box;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Ombra per staccarla dalla tabella */
 }
+
+/* Assicurati che il contenitore dei pulsanti sia flessibile */
+.workspace-btns {
+    display: flex;
+    gap: 10px;
+}
+
+.workspace-btns .toggle-btn {
+    flex: 1;
+    padding: 8px;
+    font-size: 13px;
+}
+
 
 
         .workspace-body { padding: 15px 20px 10px 20px; }
@@ -348,54 +360,44 @@ html, body {
                     
                 </div>
                 
-                <!-- MODIFICA 4: blocco ancorato durante lo scroll della tabella -->
                 <div class="sticky-workspace-header no-print">
 
-                    <!-- MODIFICA 5: freccia ◀ + nome azienda in riga -->
-                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-                        <button onclick="goHome()" title="Torna alle aziende" style="background:none; border:none; color:var(--primary); font-size:22px; cursor:pointer; padding:2px 4px; line-height:1; flex-shrink:0;">◀</button>
-                        <h2 id="currentCompanyName" style="margin:0; flex:1;"></h2>
-                    </div>
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+        <button onclick="goHome()" title="Torna alle aziende" style="background:none; border:none; color:var(--primary); font-size:22px; cursor:pointer; padding:2px 4px; line-height:1; flex-shrink:0;">◀</button>
+        <h2 id="currentCompanyName" style="margin:0; flex:1; font-size: 1.2rem;"></h2>
+    </div>
 
-                    <!-- MODIFICA 2: Listino e Nuovo Ordine affiancati -->
-                    <!-- MODIFICA 3: Nuovo Ordine chiuso di default -->
-                    <div class="workspace-btns">
-                        <button class="toggle-btn" onclick="togglePrices()">
-                            <span>⚙️ Listino</span>
-                            <span id="toggleIcon">▼</span>
-                        </button>
-                        <button class="toggle-btn" onclick="toggleNewOrder()">
-                            <span>📝 Nuovo Ordine</span>
-                            <span id="toggleOrderIcon">▼</span>
-                        </button>
-                    </div>
+    <div class="workspace-btns" style="margin-bottom: 5px;">
+        <button class="toggle-btn" onclick="togglePrices()">
+            <span>⚙️ Listino</span>
+            <span id="toggleIcon">▼</span>
+        </button>
+        <button class="toggle-btn" onclick="toggleNewOrder()">
+            <span>📝 Nuovo Ordine</span>
+            <span id="toggleOrderIcon">▼</span>
+        </button>
+    </div>
+
+    <div id="priceGridContainer" style="display: none; max-height: 300px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 5px; border: 1px solid var(--border);">
+        <button onclick="addCategory()" class="outline" style="width:100%; margin-bottom:10px; font-size:12px;">+ Aggiungi Voce</button>
+        <div id="priceGrid" class="price-grid"></div>
+    </div>
+
+    <div id="newOrderContainer" style="display: none; max-height: 400px; overflow-y: auto; background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 5px; border: 1px solid var(--border);">
+        <h3 style="font-size: 1rem; margin-bottom: 10px;">Nuovo Ordine / Sconto</h3>
+        <input type="date" id="oDate">
+        <input type="text" id="oName" placeholder="Nota (es. Nome Cliente)">
+        <div style="display:flex; gap:10px;">
+            <select id="oType"></select>
+            <input type="number" step="0.01" id="oKg" placeholder="Importo/Kg">
+        </div>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button id="saveBtn" onclick="saveOrder()" style="flex:2">Salva</button>
+            <button id="cancelBtn" onclick="cancelEdit()" class="warning" style="flex:1; display:none">Annulla</button>
+        </div>
+    </div>
                 </div>
-
-                <!-- Pannelli espandibili (no-print) -->
-                <div class="workspace-body no-print">
-
-                    <!-- Listino prezzi -->
-                    <div id="priceGridContainer" style="display: none;">
-                        <div class="price-section">
-                            <div style="padding: 0;"><button onclick="addCategory()" class="outline" style="width:100%; margin-bottom:10px; font-size:12px;">+ Aggiungi Nuova Voce</button></div>
-                            <div id="priceGrid" class="price-grid"></div>
-                        </div>
-                    </div>
-
-                    <!-- Nuovo Ordine / Sconto — chiuso di default -->
-                    <div id="newOrderContainer" style="display: none;">
-                        <h3>Nuovo Ordine / Sconto</h3>
-                        <input type="date" id="oDate">
-                        <input type="text" id="oName" placeholder="Nome Cliente o Nota (es. Acconto)">
-                        <div style="display:flex; gap:10px;">
-                            <select id="oType"></select>
-                            <input type="number" step="0.01" id="oKg" placeholder="Importo o Kg">
-                        </div>
-                        <div style="display:flex; gap:10px; margin-top:5px;">
-                            <button id="saveBtn" onclick="saveOrder()" style="flex:2">Salva</button>
-                            <button id="cancelBtn" onclick="cancelEdit()" class="warning" style="flex:1; display:none">Annulla</button>
-                        </div>
-                    </div>
+                
 
                     <button onclick="clearAllOrders()" class="danger no-print" style="padding:5px 10px; font-size:12px; margin-top:8px;">Svuota Elenco</button>
                 </div>
