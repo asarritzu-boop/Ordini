@@ -984,7 +984,7 @@ html, body {
         row.innerHTML = `
             <td>${displayDate}</td>
             <td><strong>${o.name}</strong></td>
-            <td><small>${o.typeLabel}</small></td>
+            <td><small>${o.typeLabel} (€ ${(o.total / o.kg).toFixed(2)})</small></td>a
             <td>${o.kg}</td>
             <td style="color: ${o.total < 0 ? 'red' : 'inherit'}"><strong>€ ${o.total.toFixed(2)}</strong></td>
             <td class="action-column">
