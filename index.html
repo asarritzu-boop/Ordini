@@ -72,8 +72,7 @@
         #appPage { display: none; }
         /* MODIFICA 1: header sticky, compatto, niente border-radius */
         .header {
-    position: -webkit-sticky;
-    position: sticky; /* Cambiato da fixed a sticky */
+    position: fixed !important;
     top: 0;
     left: 0;
     width: 100%;
@@ -85,7 +84,7 @@
     padding: 0 15px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     box-sizing: border-box;
-}
+        }
 
         .header-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
         .header h1 { margin: 0; font-size: 1.15rem; white-space: nowrap; }
@@ -141,34 +140,41 @@ html, body {
 }
 
 /* 1. Il contenitore generale deve essere un blocco semplice */
-.container { 
-    display: block !important; 
-    padding: 0 !important; /* Riportiamo a zero, non serve più lo spazio artificiale */
-    overflow: visible !important; 
+.container {
+    display: flex !important; 
+    flex-direction: row; 
+    gap: 20px;
+    /* 80px di padding in alto = 60px di header + 20px di respiro */
+    padding: 80px 20px 20px 20px !important; 
+    align-items: flex-start; /* Essenziale affinché lo sticky funzioni dentro un contenitore flex */
 }
 
+@media (max-width: 850px) {
+    .container { flex-direction: column !important; }
+}
 
+/* 3. Il box dei contenuti principali non deve bloccare l'overflow */
 .main-content {
     flex: 3;
     background: var(--surface);
     border-radius: 12px;
-    overflow: visible !important; /* Questo permette allo sticky di funzionare correttamente */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    overflow: visible !important;
 }
-
        .sticky-workspace-header {
     position: -webkit-sticky;
     position: sticky;
-    top: 60px; /* Si ferma esattamente sotto l'header principale che è alto 60px */
-    z-index: 1990; /* Leggermente più basso per stare sotto eventuali menu a tendina */
-    background: var(--surface); 
+    top: 60px; /* L'altezza dell'header principale! */
+    z-index: 999;
+    background: var(--surface);
     padding: 15px 20px;
     border-bottom: 2px solid var(--border);
     margin: 0;
     width: 100%;
     box-sizing: border-box;
+    border-radius: 12px 12px 0 0; /* Mantiene la grafica tonda ai lati quando è tutto espanso */
     box-shadow: 0 4px 10px -4px rgba(0,0,0,0.1); 
-}
-
+       }
         .workspace-body { padding: 15px 20px 10px 20px; }
 
         button { border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; color: white; background: var(--primary); }
