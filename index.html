@@ -137,11 +137,11 @@ html, body {
     flex-direction: column;
 }
 
-.container {
-    display: flex;
-    flex-direction: column; /* Per il mobile è meglio incolonnare */
-    padding: 0; /* Rimuovi padding che distanzia lo sticky dai bordi */
-    overflow: visible !important; /* SE C'È HIDDEN O AUTO, LO STICKY NON FUNZIONA */
+/* 1. Il contenitore generale deve essere un blocco semplice */
+.container { 
+    display: block !important; 
+    padding: 75px 20px 20px 20px !important; /* Aggiunti 75px di spazio in alto per liberare l'header fisso */
+    overflow: visible !important; 
 }
 
 .main-content {
