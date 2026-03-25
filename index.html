@@ -176,7 +176,10 @@ html, body {
     width: 100%;
     box-sizing: border-box;
 }
-
+.sticky-workspace-header {
+    max-height: 80vh;
+    overflow-y: auto;
+}
 
         .workspace-body { padding: 15px 20px 10px 20px; }
 
@@ -369,9 +372,7 @@ html, body {
                             <span id="toggleOrderIcon">▼</span>
                         </button>
                     </div>
-                </div>
-
-                <!-- Pannelli espandibili (no-print) -->
+                    <!-- Pannelli espandibili (no-print) -->
                 <div class="workspace-body no-print">
 
                     <!-- Listino prezzi -->
@@ -399,6 +400,9 @@ html, body {
 
                     <button onclick="clearAllOrders()" class="danger no-print" style="padding:5px 10px; font-size:12px; margin-top:8px;">Svuota Elenco</button>
                 </div>
+                </div>
+
+                
 
                 <!-- TABELLA — identica all'originale -->
                 <div style="padding: 0 20px 20px 20px;">
