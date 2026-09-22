@@ -329,7 +329,7 @@ div[style*="padding: 0 20px"] { padding: 0 !important; }
         <div style="position:relative; flex-shrink:0;">
             <button class="menu-btn" onclick="toggleMenu()" id="menuToggleBtn">☰</button>
             <div class="dropdown-menu" id="dropdownMenu">
-                <button onclick="closeMenu(); window._printing=true; renderOrders(); setTimeout(()=>{ window.print(); }, 100)">🖨️ Stampa PDF</button>
+                <button onclick="closeMenu(); window._printing=true; renderOrders(); const comp = db.companies.find(c => c.id === activeId); if (comp) document.title = comp.name; setTimeout(()=>{ window.print(); }, 150)">🖨️ Stampa PDF</button>
                 <button onclick="exportData(); closeMenu()">📤 Esporta Backup</button>
                 <button onclick="document.getElementById('importFile').click(); closeMenu()">📥 Importa Backup</button>
                 <div class="menu-divider"></div>
