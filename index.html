@@ -837,6 +837,23 @@ div[style*="padding: 0 20px"] { padding: 0 !important; }
         renderWorkspace();
     }
 
+    function cloneComp(id, e) {
+    e.stopPropagation();
+    const comp = db.companies.find(c => c.id === id);
+    const newName = prompt("Nome della nuova azienda:");
+    if (!newName || !newName.trim()) return;
+    const newComp = {
+        id: "C" + Date.now(),
+        name: newName.trim(),
+        prices: JSON.parse(JSON.stringify(comp.prices)),
+        orders: JSON.parse(JSON.stringify(comp.orders))
+    };
+    db.companies.push(newComp);
+    save();
+    renderList();
+    selectCompany(newComp.id);
+    }
+    
     function selectCompany(id) {
         activeId = id;
         editId = null;
@@ -871,7 +888,8 @@ div[style*="padding: 0 20px"] { padding: 0 !important; }
                 <span style="flex:1; overflow:hidden; text-overflow:ellipsis;">${c.name}</span>
                 <div class="comp-actions">
                     <button class="comp-btn warning no-print" onclick="renameComp('${c.id}', event)">✎</button>
-                    <button class="comp-btn danger no-print" onclick="delComp('${c.id}', event)">✖</button>
+                    <button class="comp-btn success no-print" onclick="cloneComp('${c.id}', event)">⧉</button>
+                <button class="comp-btn danger no-print" onclick="delComp('${c.id}', event)">✖</button>
                 </div>
             `;
             list.appendChild(li);
